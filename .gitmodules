@@ -1,0 +1,3 @@
+[submodule "git_submodules/calculisto/array"]
+	path = git_submodules/calculisto/array
+	url = https://github.com/calculisto/array
