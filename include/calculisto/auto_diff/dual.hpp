@@ -41,6 +41,10 @@ private:
         , differentials_m { diffs }
     {}
 public:
+        using
+    value_type = T;
+    dual_t ()
+    {}
         explicit
     dual_t (std::size_t index)
     {
@@ -58,6 +62,11 @@ public:
     }
         auto
     value () const
+    {
+        return value_m;
+    }
+        auto&
+    value ()
     {
         return value_m;
     }
