@@ -24,37 +24,39 @@ detail
     }
 } // namespace detail
 
-
-
     template <std::size_t N, class T = double>
     struct
 dual_t
 {
-public:
+        using
+    value_type = T;
+
         T
     value;
         array_t <T, N>
     differentials = detail::zero_array <N, T> ();
 
+    dual_t ()
+    {}
+
     dual_t (T a_value, array_t <T, N> const& diffs)
         : value { a_value }
         , differentials { diffs }
     {}
-        using
-    value_type = T;
-    dual_t ()
-    {}
+
+    // This one should behave like a T
         explicit
-    dual_t (std::size_t index)
-    {
-        differentials.at (index) = static_cast <T> (1);
-    }
-    dual_t (std::size_t index , T a_value)
+    dual_t (T const& a_value)
+        : value { a_value }
+    {}
+
+    dual_t (T a_value, std::size_t index)
         : value { a_value }
     {
         differentials.at (index) = static_cast <T> (1);
     }
-    dual_t (std::size_t index , T a_value, T differential_value)
+
+    dual_t (T a_value, std::size_t index, T differential_value)
         : value { a_value }
     {
         differentials.at (index) = differential_value;

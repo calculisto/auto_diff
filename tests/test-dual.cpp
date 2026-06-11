@@ -7,20 +7,53 @@ TEST_CASE("dual.hpp")
 {
 SUBCASE("Construction")
 {
-        [[maybe_unused]]
         const auto
-    a = dual_t <1> { 0 };
-        [[maybe_unused]]
+    a = dual_t <1> { 2 };
+    CHECK(a.value == 2);
+    CHECK(a.differentials[0] == 0);
+
         const auto
-    b = dual_t <1> { 0, 25 };
-        [[maybe_unused]]
+    b = dual_t <2> { 25, 0 };
+    CHECK(b.value == 25);
+    CHECK(b.differentials[0] == 1);
+    CHECK(b.differentials[1] == 0);
+
         const auto
-    c = dual_t <1> { 0, 32, 0.5 };
+    c = dual_t <2> { 32, 1, 0.5 };
+    CHECK(c.value == 32);
+    CHECK(c.differentials[0] == 0);
+    CHECK(c.differentials[1] == 0.5);
+}
+SUBCASE("A dual with no differentials behaves normal number")
+{
+        const auto
+    x = dual_t <1> { 3, 0 };
+        const auto
+    p1 = 2 * x;
+    CHECK(p1.value == 6);
+    CHECK(p1.differentials[0] == 2);
+
+        const auto
+    a = dual_t <1> { 2 };
+        const auto
+    p2 = a * x;
+    CHECK(p2.value == 6);
+    CHECK(p2.differentials[0] == 2);
+}
+SUBCASE("Casting from underlying type")
+{
+    // This is used to initialize a sum
+        const auto
+    x =static_cast <dual_t <3>> (0);
+    CHECK(x.value == 0);
+        const auto
+    y =static_cast <dual_t <3>> (1);
+    CHECK(y.value == 1);
 }
 SUBCASE("Arithmetic, one value")
 {
         const auto
-    x = dual_t <1> { 0, 2 };
+    x = dual_t <1> { 2, 0 };
     CHECK((+x).value == 2);
     CHECK((-x).value == -2);
     CHECK(x == 2);
@@ -53,7 +86,7 @@ SUBCASE("Arithmetic, one value")
     }
     {
             auto
-        f = dual_t <1> { 0, 1 };
+        f = dual_t <1> { 1, 0 };
         f += 1;
         CHECK(f.value == 2);
         CHECK(f.differentials[0] == 1);
@@ -72,7 +105,7 @@ SUBCASE("Arithmetic, one value")
     }
     {
             auto
-        f = dual_t <1> { 0, 1 };
+        f = dual_t <1> { 1, 0 };
         f -= 1;
         CHECK(f.value == 0);
         CHECK(f.differentials[0] == 1);
@@ -105,9 +138,9 @@ SUBCASE("Arithmetic, one value")
 SUBCASE("Arithmetic, two values")
 {
         const auto
-    x = dual_t <2> { 0, 2 };
+    x = dual_t <2> { 2, 0 };
         const auto
-    y = dual_t <2> { 1, 3 };
+    y = dual_t <2> { 3, 1 };
     CHECK(x != y);
     CHECK(x <  y);
     CHECK(y >  x);
@@ -145,7 +178,7 @@ SUBCASE("Arithmetic, two values")
 SUBCASE("Functions, one value")
 {
         const auto
-    x = dual_t <1> { 0, 0.5 };
+    x = dual_t <1> { 0.5, 0 };
     {
             const auto
         f = acos (x);
@@ -183,7 +216,7 @@ SUBCASE("Functions, one value")
         CHECK(f.differentials[0] == 1 + f.value * f.value);
     }
         const auto
-    y = dual_t <1> { 0, 2 };
+    y = dual_t <1> { 2, 0 };
     {
             const auto
         f = acosh (y);
@@ -290,9 +323,9 @@ SUBCASE("Functions, one value")
 SUBCASE("Functions, two values")
 {
         const auto
-    x = dual_t <2> { 0, 2 };
+    x = dual_t <2> { 2, 0 };
         const auto
-    y = dual_t <2> { 1, 3 };
+    y = dual_t <2> { 3, 1 };
     {
             const auto
         f = atan2 (y, x);
@@ -360,11 +393,11 @@ SUBCASE("Functions, two values")
 SUBCASE("Functions, three values")
 {
         const auto
-    x = dual_t <3> { 0, 2 };
+    x = dual_t <3> { 2, 0 };
         const auto
     y = dual_t <3> { 1, 1 };
         const auto
-    z = dual_t <3> { 2, 3 };
+    z = dual_t <3> { 3, 2 };
     {
             const auto
         f = hypot (x, y, z);
@@ -419,17 +452,32 @@ SUBCASE("Functions, three values")
 SUBCASE("Polynomials")
 {
         const auto
-    x = dual_t <3> { 0, 2 };
+    x = dual_t <3> { 2, 0 };
         const auto
-    y = dual_t <3> { 1, 3 };
+    y = dual_t <3> { 3, 1 };
         const auto
-    z = dual_t <3> { 2, 4 };
+    z = dual_t <3> { 4, 2 };
         const auto
     f = 3 * pow (x, 3) + 4 * pow (y, 2) + 5 * z + 3;
     CHECK(f.value == 83);
     CHECK(f.differentials[0] == 36);
     CHECK(f.differentials[1] == 24);
     CHECK(f.differentials[2] == 5);
+}
+SUBCASE("Unused dimensions")
+{
+        const auto
+    x = dual_t <3> { 2, 0 };
+        const auto
+    y = dual_t <3> { 3, 1 };
+        const auto
+    z = 4.;
+        const auto
+    f = 3 * pow (x, 3) + 4 * pow (y, 2) + 5 * z + 3;
+    CHECK(f.value == 83);
+    CHECK(f.differentials[0] == 36);
+    CHECK(f.differentials[1] == 24);
+    CHECK(f.differentials[2] == 0);
 }
     
 } // TEST_CASE("dual.hpp")
